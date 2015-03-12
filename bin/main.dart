@@ -38,13 +38,14 @@ main(List<String> args) {
 
   final optim = optimize1(dataCenter, machines,
           new Iterable.generate(info.groups).map((i) => new Group(i)).toList())
-      .where((i) => i.machine != UNAVAILABLE).toList();
+      .where((i) => i.machine != UNAVAILABLE)
+      .toList();
 
   optim.sort((i1, i2) => i1.machine.id - i2.machine.id);
 //  final result = optim.map((i) => "${i.row} ${i.slot} ${i.group.id}").toList();
-  
-  showMe(machines, optim);
-  
+
+  showMe(info, machines, optim);
+
 //  score(optim);
 
 //  final allIdMachinesInOptim = optim.map((i) => i.machine.id).toList();
@@ -56,17 +57,26 @@ main(List<String> args) {
 //  print(hashcode2015.compute(input));
 }
 
-//void score(List<Install>)
+void score(List<Installation> optim, DataCenter datacenter) {
+//  Li
+}
 
-void showMe(List<Machine> machines, List<Installation> optim) {
-  final unavailableInstallation = new Installation(UNAVAILABLE, null, 0, 0);
-  for (Machine machine in machines) {
-    final result = optim.firstWhere((i) => i.machine.id == machine.id, orElse: () => unavailableInstallation);
-    if (result == unavailableInstallation) {
-      print("x");
-    } else {
-  //      print("${result.row} ${result.slot} ${result.group.id}");
-      print("${result.row} ${result.slot} ${result.group.id}");
-    }
+void showMe(Info info, List<Machine> machines, List<Installation> optim) {
+//  final unavailableInstallation = new Installation(UNAVAILABLE, null, 0, 0);
+//  for (Machine machine in machines) {
+//    final result = optim.firstWhere((i) => i.machine.id == machine.id, orElse: () => unavailableInstallation);
+//    if (result == unavailableInstallation) {
+//      print("x");
+//    } else {
+//  //      print("${result.row} ${result.slot} ${result.group.id}");
+//      print("${result.row} ${result.slot} ${result.group.id}");
+//    }
+//  }
+
+  for (int i = 0; i < info.servers; i++) {
+    final install = optim.firstWhere((install) => install.machine.id == i,
+        orElse: () => null);
+    if (install == null) print('x');
+    else print("${install.row} ${install.slot} ${install.group.id}");
   }
 }
