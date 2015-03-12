@@ -41,13 +41,32 @@ main(List<String> args) {
       .where((i) => i.machine != UNAVAILABLE).toList();
 
   optim.sort((i1, i2) => i1.machine.id - i2.machine.id);
-  final result = optim.map((i) => "${i.row} ${i.slot} ${i.group.id}").toList();
+//  final result = optim.map((i) => "${i.row} ${i.slot} ${i.group.id}").toList();
+  
+  showMe(machines, optim);
+  
+//  score(optim);
 
-  final allIdMachinesInOptim = optim.map((i) => i.machine.id).toList();
+//  final allIdMachinesInOptim = optim.map((i) => i.machine.id).toList();
 
-  final unavailables =
-      machines.where((m) => !allIdMachinesInOptim.contains(m.id));
-  result.forEach((r) => print(r));
-  unavailables.forEach((r) => print("x"));
+//  final unavailables =
+//      machines.where((m) => !allIdMachinesInOptim.contains(m.id));
+//  result.forEach((r) => print(r));
+//  unavailables.forEach((r) => print("x"));
 //  print(hashcode2015.compute(input));
+}
+
+//void score(List<Install>)
+
+void showMe(List<Machine> machines, List<Installation> optim) {
+  final unavailableInstallation = new Installation(UNAVAILABLE, null, 0, 0);
+  for (Machine machine in machines) {
+    final result = optim.firstWhere((i) => i.machine.id == machine.id, orElse: () => unavailableInstallation);
+    if (result == unavailableInstallation) {
+      print("x");
+    } else {
+  //      print("${result.row} ${result.slot} ${result.group.id}");
+      print("${result.row} ${result.slot} ${result.group.id}");
+    }
+  }
 }
