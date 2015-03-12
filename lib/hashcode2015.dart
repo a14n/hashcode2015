@@ -52,12 +52,20 @@ class DataCenter {
   bool putOnRow(int row, Machine m) {
     for (int i = 0; i < slotsByRow; i++) {
       final pos = i;
+      var ok = true;
       for (; i < pos + m.slots; i++) {
+        if (i >= slotsByRow) {
+          ok = false;
+          break;
+        }
         final other = slots[row][i];
         if (other != null) {
           i += other.slots - 1;
+          ok = false;
           break;
         }
+      }
+      if (ok) {
         put(row, pos, m);
         return true;
       }
@@ -80,7 +88,7 @@ class DataCenter {
         }
       }
     }
-    return result..sort((i1,i2) => i1.machine.id.compareTo(i2.machine.id));
+    return result..sort((i1, i2) => i1.machine.id.compareTo(i2.machine.id));
   }
 
   String toString() => 'DataCenter[$slots]';
