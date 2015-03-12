@@ -48,9 +48,9 @@ main(List<String> args) {
 
   scoreUp(optim, dataCenter);
   scoreLow(info, optim, dataCenter);
-  
+
   final finalScore = score(info, optim, dataCenter);
-  print("Score $finalScore");
+  //print("Score $finalScore");
 }
 
 int score(Info info, List<Installation> optim, DataCenter dataCenter) {
