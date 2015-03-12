@@ -2,6 +2,7 @@
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:hashcode2015/hashcode2015.dart';
 
@@ -42,41 +43,65 @@ main(List<String> args) {
       .toList();
 
   optim.sort((i1, i2) => i1.machine.id - i2.machine.id);
-//  final result = optim.map((i) => "${i.row} ${i.slot} ${i.group.id}").toList();
 
-  showMe(info, machines, optim);
+  showMe(machines, optim);
 
-//  score(optim);
-
-//  final allIdMachinesInOptim = optim.map((i) => i.machine.id).toList();
-
-//  final unavailables =
-//      machines.where((m) => !allIdMachinesInOptim.contains(m.id));
-//  result.forEach((r) => print(r));
-//  unavailables.forEach((r) => print("x"));
-//  print(hashcode2015.compute(input));
+  scoreUp(optim, dataCenter);
+  scoreLow(info, optim, dataCenter);
+  
+  final finalScore = score(info, optim, dataCenter);
+  print("Score $finalScore");
 }
 
-void score(List<Installation> optim, DataCenter datacenter) {
-//  Li
+int score(Info info, List<Installation> optim, DataCenter dataCenter) {
+  Map<Group, int> scores = scoreLow(info, optim, dataCenter);
+  return scores.values.fold(20000000, (o, s) => min(o, s));
 }
 
-void showMe(Info info, List<Machine> machines, List<Installation> optim) {
-//  final unavailableInstallation = new Installation(UNAVAILABLE, null, 0, 0);
-//  for (Machine machine in machines) {
-//    final result = optim.firstWhere((i) => i.machine.id == machine.id, orElse: () => unavailableInstallation);
-//    if (result == unavailableInstallation) {
-//      print("x");
-//    } else {
-//  //      print("${result.row} ${result.slot} ${result.group.id}");
-//      print("${result.row} ${result.slot} ${result.group.id}");
-//    }
-//  }
+Map<Group, int> scoreUp(List<Installation> optim, DataCenter datacenter) {
+  Map<Group, int> map = new Map();
+  for (Installation installation in optim) {
+    if (!map.containsKey(installation.group)) {
+      map[installation.group] = installation.machine.capacity;
+    } else {
+      map[installation.group] =
+          map[installation.group] + installation.machine.capacity;
+    }
+  }
 
-  for (int i = 0; i < info.servers; i++) {
-    final install = optim.firstWhere((install) => install.machine.id == i,
-        orElse: () => null);
-    if (install == null) print('x');
-    else print("${install.row} ${install.slot} ${install.group.id}");
+//  map.forEach((g, s) => print("score du group ${g.id} => $s"));
+  return map;
+}
+
+Map<Group, int> scoreLow(
+    Info info, List<Installation> optim, DataCenter datacenter) {
+  Map<Group, int> map = new Map();
+  for (int i = 0; i < info.rows; i++) {
+    final newOptim = optim.where((f) => f.row != i).toList();
+    Map<Group, int> scores = scoreUp(newOptim, datacenter);
+    scores.forEach((g, s) {
+      if (!map.containsKey(g)) {
+        map[g] = s;
+      } else {
+        map[g] = min(s, map[g]);
+      }
+    });
+  }
+
+//  map.forEach((g, s) => print("score du group ${g.id} => $s"));
+  return map;
+}
+
+void showMe(List<Machine> machines, List<Installation> optim) {
+  machines.sort((m1, m2) => m1.id - m2.id);
+  for (Machine machine in machines) {
+    final result =
+        optim.firstWhere((i) => i.machine.id == machine.id, orElse: () => null);
+    if (result == null) {
+      print("x");
+    } else {
+      //      print("${result.row} ${result.slot} ${result.group.id}");
+      print("${result.row} ${result.slot} ${result.group.id}");
+    }
   }
 }
