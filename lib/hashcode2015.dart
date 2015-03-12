@@ -8,14 +8,15 @@ String compute(String input) {
   return input;
 }
 
-List<Installation> optimize(
+List<Installation> optimize1(
     DataCenter dc, List<Machine> machines, List<Group> groups) {
-  machines.sort((m1, m2) => m1.slots.compareTo(m2.slots));
+  machines.sort((m1, m2) => m2.slots.compareTo(m1.slots));
   int currentRow = 0;
   for (final m in machines) {
     for (int i = 0; i < dc.rows; i++) {
-      dc.putOnRow(currentRow, m);
+      final success = dc.putOnRow(currentRow, m);
       currentRow = (currentRow + 1) % dc.rows;
+      if (success) break;
     }
   }
   return dc.installations;
@@ -26,7 +27,7 @@ class Machine {
 
   Machine(this.id, this.slots, this.capacity);
 
-  String toString() => 'id:$id slots:$slots capacity:$capacity';
+  String toString() => 'Machine[id:$id slots:$slots capacity:$capacity]';
 }
 
 final UNAVAILABLE = new Machine(null, 1, null);
@@ -35,6 +36,8 @@ class Group {
   final int id;
 
   Group(this.id);
+
+  String toString() => 'Group[id:$id]';
 }
 
 class DataCenter {
@@ -52,7 +55,7 @@ class DataCenter {
       for (; i < pos + m.slots; i++) {
         final other = slots[row][i];
         if (other != null) {
-          i += other.slots;
+          i += other.slots - 1;
           break;
         }
         put(row, pos, m);
@@ -77,10 +80,10 @@ class DataCenter {
         }
       }
     }
-    return result;
+    return result..sort((i1,i2) => i1.machine.id.compareTo(i2.machine.id));
   }
 
-  String toString() => slots.toString();
+  String toString() => 'DataCenter[$slots]';
 }
 
 class Installation {
@@ -88,4 +91,6 @@ class Installation {
   Group group;
   int row, slot;
   Installation(this.machine, this.group, this.row, this.slot);
+  String toString() =>
+      'Installation[machine:[$machine] row:$row slot:$slot group:$group]';
 }
