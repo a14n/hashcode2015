@@ -22,8 +22,8 @@ List<Installation> optimize1(
 
   // group allocations
   final installations = dc.installations;
-  installations.sort((i1, i2) => i1.machine.slots
-      .compareTo(i2.machine.slots));
+  installations.sort((i1, i2) => i1.machine.capacity
+      .compareTo(i2.machine.capacity));
 
   if (groups.isNotEmpty) {
     int groupIndex = 0;
