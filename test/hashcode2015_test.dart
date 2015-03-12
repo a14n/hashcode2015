@@ -57,4 +57,22 @@ Installation[machine:[Machine[id:1 slots:2 capacity:1]] row:1 slot:0 group:Group
     expect(optimize1(dc, machines, []).join('\n'), '''
 Installation[machine:[Machine[id:0 slots:2 capacity:1]] row:0 slot:2 group:Group[id:0]]''');
   });
+
+  test('allocations with an unavailable', () {
+    final dc = new DataCenter(1, 5);
+    final machines = new List.generate(3, (i) => new Machine(i, 7 - i, 1));
+    expect(optimize1(dc, machines, []).join('\n'), '''
+Installation[machine:[Machine[id:2 slots:5 capacity:1]] row:0 slot:0 group:Group[id:0]]''');
+  });
+
+  test('allocation of 2 machines with groups', () {
+    final dc = new DataCenter(3, 3);
+    final machines = new List.generate(4, (i) => new Machine(i, 1, 1));
+    final groups = new List.generate(2, (i) => new Group(i));
+    expect(optimize1(dc, machines, groups).join('\n'), '''
+Installation[machine:[Machine[id:0 slots:1 capacity:1]] row:0 slot:0 group:Group[id:0]]
+Installation[machine:[Machine[id:1 slots:1 capacity:1]] row:1 slot:0 group:Group[id:1]]
+Installation[machine:[Machine[id:2 slots:1 capacity:1]] row:2 slot:0 group:Group[id:0]]
+Installation[machine:[Machine[id:3 slots:1 capacity:1]] row:0 slot:1 group:Group[id:1]]''');
+  });
 }

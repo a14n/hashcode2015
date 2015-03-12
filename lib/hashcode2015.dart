@@ -19,7 +19,22 @@ List<Installation> optimize1(
       if (success) break;
     }
   }
-  return dc.installations;
+
+  // group allocations
+  final installations = dc.installations;
+  installations
+      .sort((i1, i2) => i1.machine.capacity.compareTo(i2.machine.capacity));
+
+  if (groups.isNotEmpty) {
+    int groupIndex = 0;
+    for (final installation in installations) {
+      installation.group = groups[groupIndex];
+      groupIndex = (groupIndex + 1) % groups.length;
+    }
+  }
+
+  installations.sort((i1, i2) => i1.machine.id.compareTo(i2.machine.id));
+  return installations;
 }
 
 class Machine {
