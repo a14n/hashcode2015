@@ -10,7 +10,8 @@ String compute(String input) {
 
 List<Installation> optimize1(
     DataCenter dc, List<Machine> machines, List<Group> groups) {
-  machines.sort((m1, m2) => (m2.capacity/m2.slots).compareTo(m1.capacity/m1.slots));
+  double f(m) => m.capacity/m.slots;
+  machines.sort((m1, m2) => f(m2).compareTo(f(m1)));
   int currentRow = 0;
   for (final m in machines) {
     for (int i = 0; i < dc.rows; i++) {
@@ -22,8 +23,8 @@ List<Installation> optimize1(
 
   // group allocations
   final installations = dc.installations;
-  installations.sort((i1, i2) => i1.machine.capacity
-      .compareTo(i2.machine.capacity));
+  installations.sort((i1, i2) => f(i1.machine)
+      .compareTo(f(i2.machine)));
 
   if (groups.isNotEmpty) {
     int groupIndex = 0;
