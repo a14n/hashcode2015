@@ -47,14 +47,14 @@ main(List<String> args) {
   showMe(machines, optim);
 
   scoreUp(optim, dataCenter);
-  scoreLow(optim, dataCenter);
+  scoreLow(optim, dataCenter, new Iterable.generate(info.groups).map((i) => new Group(i)).toList());
 
-  final finalScore = score(optim, dataCenter);
+  final finalScore = score(optim, dataCenter, new Iterable.generate(info.groups).map((i) => new Group(i)).toList());
   print("Score $finalScore");
 }
 
-int score(List<Installation> optim, DataCenter dataCenter) {
-  Map<Group, int> scores = scoreLow(optim, dataCenter);
+int score(List<Installation> optim, DataCenter dataCenter, List<Group> groups) {
+  Map<Group, int> scores = scoreLow(optim, dataCenter, groups);
   return scores.values.fold(20000000, (o, s) => min(o, s));
 }
 
@@ -74,7 +74,7 @@ Map<Group, int> scoreUp(List<Installation> optim, DataCenter datacenter) {
 }
 
 Map<Group, int> scoreLow(
-    List<Installation> optim, DataCenter datacenter) {
+    List<Installation> optim, DataCenter datacenter, List<Group> groups) {
   Map<Group, int> map = new Map();
   for (int i = 0; i < datacenter.rows; i++) {
     final newOptim = optim.where((f) => f.row != i).toList();
@@ -89,6 +89,8 @@ Map<Group, int> scoreLow(
   }
 
 //  map.forEach((g, s) => print("score du group ${g.id} => $s"));
+  
+  groups.forEach((g) => map.putIfAbsent(g, () => 0));
   return map;
 }
 
