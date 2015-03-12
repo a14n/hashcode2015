@@ -47,14 +47,14 @@ main(List<String> args) {
   showMe(machines, optim);
 
   scoreUp(optim, dataCenter);
-  scoreLow(info, optim, dataCenter);
+  scoreLow(optim, dataCenter);
 
-  final finalScore = score(info, optim, dataCenter);
-  //print("Score $finalScore");
+  final finalScore = score(optim, dataCenter);
+  print("Score $finalScore");
 }
 
-int score(Info info, List<Installation> optim, DataCenter dataCenter) {
-  Map<Group, int> scores = scoreLow(info, optim, dataCenter);
+int score(List<Installation> optim, DataCenter dataCenter) {
+  Map<Group, int> scores = scoreLow(optim, dataCenter);
   return scores.values.fold(20000000, (o, s) => min(o, s));
 }
 
@@ -74,9 +74,9 @@ Map<Group, int> scoreUp(List<Installation> optim, DataCenter datacenter) {
 }
 
 Map<Group, int> scoreLow(
-    Info info, List<Installation> optim, DataCenter datacenter) {
+    List<Installation> optim, DataCenter datacenter) {
   Map<Group, int> map = new Map();
-  for (int i = 0; i < info.rows; i++) {
+  for (int i = 0; i < datacenter.rows; i++) {
     final newOptim = optim.where((f) => f.row != i).toList();
     Map<Group, int> scores = scoreUp(newOptim, datacenter);
     scores.forEach((g, s) {
