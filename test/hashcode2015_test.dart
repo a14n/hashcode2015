@@ -65,7 +65,7 @@ Installation[machine:[Machine[id:0 slots:2 capacity:1]] row:0 slot:2 group:Group
 Installation[machine:[Machine[id:2 slots:5 capacity:1]] row:0 slot:0 group:Group[id:0]]''');
   });
 
-  skip_test('allocation of 2 machines with groups', () {
+  test('allocation of 2 machines with groups', () {
     final dc = new DataCenter(3, 3);
     final machines = new List.generate(4, (i) => new Machine(i, 1, 1));
     final groups = new List.generate(2, (i) => new Group(i));

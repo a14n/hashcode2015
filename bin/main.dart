@@ -46,40 +46,31 @@ main(List<String> args) {
 
   showMe(machines, optim);
 
-  scoreUp(optim, dataCenter);
-  scoreLow(optim, dataCenter, new Iterable.generate(info.groups).map((i) => new Group(i)).toList());
+  //scoreUp(optim, dataCenter);
+  //scoreLow(optim, dataCenter, new Iterable.generate(info.groups).map((i) => new Group(i)).toList());
 
-  final finalScore = score(optim, dataCenter, new Iterable.generate(info.groups).map((i) => new Group(i)).toList());
+  final finalScore = score(optim, dataCenter,
+      new Iterable.generate(info.groups).map((i) => new Group(i)).toList());
   print("Score $finalScore");
 }
 
 int score(List<Installation> optim, DataCenter dataCenter, List<Group> groups) {
   Map<Group, int> scores = scoreLow(optim, dataCenter, groups);
+  print(scores);
   return scores.values.fold(20000000, (o, s) => min(o, s));
-}
-
-Map<Group, int> scoreUp(List<Installation> optim, DataCenter datacenter) {
-  Map<Group, int> map = new Map();
-  for (Installation installation in optim) {
-    if (!map.containsKey(installation.group)) {
-      map[installation.group] = installation.machine.capacity;
-    } else {
-      map[installation.group] =
-          map[installation.group] + installation.machine.capacity;
-    }
-  }
-
-//  map.forEach((g, s) => print("score du group ${g.id} => $s"));
-  return map;
 }
 
 Map<Group, int> scoreLow(
     List<Installation> optim, DataCenter datacenter, List<Group> groups) {
   Map<Group, int> map = new Map();
-  for (int i = 0; i < datacenter.rows; i++) {
-    final newOptim = optim.where((f) => f.row != i).toList();
-    Map<Group, int> scores = scoreUp(newOptim, datacenter);
-    scores.forEach((g, s) {
+  for (int r = 0; r < datacenter.rows; r++) {
+    final t = new Map.fromIterable(groups,
+        value: (g) => optim
+            .where((i) => i.row != r)
+            .where((i) => i.group.id == g.id)
+            .fold(0, (c, i) => c + i.machine.capacity));
+    print('$t');
+    t.forEach((g, s) {
       if (!map.containsKey(g)) {
         map[g] = s;
       } else {
@@ -89,7 +80,7 @@ Map<Group, int> scoreLow(
   }
 
 //  map.forEach((g, s) => print("score du group ${g.id} => $s"));
-  
+
   groups.forEach((g) => map.putIfAbsent(g, () => 0));
   return map;
 }

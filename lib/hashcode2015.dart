@@ -15,34 +15,48 @@ List<Installation> optimize1(
   num f3(Machine m) => m.slots;
   num f4(Machine m) => m.capacity * m.slots;
   num f5(Machine m) => m.slots / m.capacity;
-  final fRow = f2;
-  final fGroup = f5;
+  final fRow = f1;
 
+  int groupId = 0;
+  final machinesByGroups = new Map.fromIterable(groups, key: (g) => g.id, value: (_) => []);
   machines.sort((m1, m2) => fRow(m2).compareTo(fRow(m1)));
-  int currentRow = 0;
   for (final m in machines) {
+    final indexes = dc.linesCharge().keys.toList().reversed.toList();
     for (int i = 0; i < dc.rows; i++) {
-      final success = dc.putOnRow(currentRow, m);
-      currentRow = (currentRow + 1) % dc.rows;
-      if (success) break;
+      final success = dc.putOnRow(indexes[i], m);
+      if (success) {
+        machinesByGroups[groupId++ % groups.length].add(m);
+        break;
+      }
     }
   }
 
+  print(new Map.fromIterable(machinesByGroups.keys, value: (k) => machinesByGroups[k].length));
+
   // group allocations
   final installations = dc.installations;
-  installations
-      .sort((i1, i2) => fGroup(i1.machine).compareTo(fGroup(i2.machine)));
 
   if (groups.isNotEmpty) {
-    int groupIndex = 0;
     for (final installation in installations) {
-      installation.group = groups[groupIndex];
-      groupIndex = (groupIndex + 1) % groups.length;
+      for (final groupId in machinesByGroups.keys) {
+        if (machinesByGroups[groupId].contains(installation.machine)) {
+          installation.group = groups.firstWhere((g) => g.id == groupId);
+          break;
+        }
+      }
     }
   }
 
   installations.sort((i1, i2) => i1.machine.id.compareTo(i2.machine.id));
   return installations;
+}
+
+class Score {
+  int total;
+  Group group;
+  Score(this.total, this.group);
+
+  String toString() => 'Score[group:$group total:$total]';
 }
 
 class Machine {
@@ -53,7 +67,7 @@ class Machine {
   String toString() => 'Machine[id:$id slots:$slots capacity:$capacity]';
 }
 
-final UNAVAILABLE = new Machine(null, 1, null);
+final UNAVAILABLE = new Machine(null, 1, 0);
 
 class Group {
   final int id;
@@ -94,6 +108,18 @@ class DataCenter {
       }
     }
     return false;
+  }
+
+  Map<int, int> linesCharge() {
+    final result =
+        new Map.fromIterable(new Iterable.generate(rows), value: (_) => 0);
+    for (int i = 0; i < rows; i++) {
+      result[i] =
+          slots[i].where((m) => m != null).fold(0, (t, m) => t + m.capacity);
+    }
+    final orderedIndexes = result.keys.toList()
+      ..sort((i1, i2) => result[i1].compareTo(result[i2]));
+    return new Map.fromIterable(orderedIndexes, value: (i) => result[i]);
   }
 
   void put(int row, int slot, Machine m) {
